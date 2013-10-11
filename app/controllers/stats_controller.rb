@@ -554,7 +554,7 @@ class StatsController < ApplicationController
   def get_stats_tags
     # tag cloud code inspired by this article
     #  http://www.juixe.com/techknow/index.php/2006/07/15/acts-as-taggable-tag-cloud/
-
+    TagCloud.new(current_user).compute
     levels=10
     # TODO: parameterize limit
 
