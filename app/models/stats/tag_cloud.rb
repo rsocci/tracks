@@ -1,7 +1,7 @@
 # tag cloud code inspired by this article
 #  http://www.juixe.com/techknow/index.php/2006/07/15/acts-as-taggable-tag-cloud/
 class TagCloud
-  attr_reader :user, :tags, :tags_min, :tags_divisor
+  attr_reader :user, :tags, :min, :divisor
   def initialize(user, cut_off = nil)
     @user = user
     @cut_off = cut_off
@@ -18,13 +18,13 @@ class TagCloud
 
     @tags = Tag.find_by_sql(params).sort_by { |tag| tag.name.downcase }
 
-    max, @tags_min = 0, 0
+    max, @min = 0, 0
     @tags.each { |t|
       max = [t.count.to_i, max].max
-      @tags_min = [t.count.to_i, @tags_min].min
+      @min = [t.count.to_i, @min].min
     }
 
-    @tags_divisor = ((max - @tags_min) / levels) + 1
+    @divisor = ((max - @min) / levels) + 1
   end
 
   private
