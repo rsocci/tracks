@@ -11,16 +11,7 @@ class TagCloud
   def compute
     levels=10
 
-    query = "SELECT tags.id, name, count(*) AS count"
-    query << " FROM taggings, tags, todos"
-    query << " WHERE tags.id = tag_id"
-    query << " AND taggings.taggable_id = todos.id"
-    query << " AND todos.user_id="+user.id.to_s+" "
-    query << " AND taggings.taggable_type='Todo' "
-    query << " GROUP BY tags.id, tags.name"
-    query << " ORDER BY count DESC, name"
-    query << " LIMIT 100"
-    @tags = Tag.find_by_sql(query).sort_by { |tag| tag.name.downcase }
+    @tags = Tag.find_by_sql(sql).sort_by { |tag| tag.name.downcase }
 
     max, @tags_min = 0, 0
     @tags.each { |t|
@@ -57,5 +48,18 @@ class TagCloud
     query << " GROUP BY tags.id, tags.name"
     query << " ORDER BY count DESC, name"
     query << " LIMIT 100"
+  end
+
+  def sql
+    query = "SELECT tags.id, name, count(*) AS count"
+    query << " FROM taggings, tags, todos"
+    query << " WHERE tags.id = tag_id"
+    query << " AND taggings.taggable_id = todos.id"
+    query << " AND todos.user_id="+user.id.to_s+" "
+    query << " AND taggings.taggable_type='Todo' "
+    query << " GROUP BY tags.id, tags.name"
+    query << " ORDER BY count DESC, name"
+    query << " LIMIT 100"
+
   end
 end
