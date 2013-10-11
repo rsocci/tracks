@@ -1,8 +1,8 @@
 # tag cloud code inspired by this article
 #  http://www.juixe.com/techknow/index.php/2006/07/15/acts-as-taggable-tag-cloud/
 class TagCloud
-  attr_reader :user, :tags, :tags_min, :tags_divisor, :tags_for_cloud_90days, :tags_min_90days, :tags_divisor_90days
-  def initialize(user, cut_off)
+  attr_reader :user, :tags, :tags_min, :tags_divisor
+  def initialize(user, cut_off = nil)
     @user = user
     @cut_off = cut_off
   end
@@ -11,7 +11,11 @@ class TagCloud
   def compute
     levels=10
 
-    params = [sql, user.id]
+    params = [sql(@cut_off), user.id]
+    if @cut_off
+      params += [@cut_off, @cut_off]
+    end
+
     @tags = Tag.find_by_sql(params).sort_by { |tag| tag.name.downcase }
 
     max, @tags_min = 0, 0
@@ -21,17 +25,6 @@ class TagCloud
     }
 
     @tags_divisor = ((max - @tags_min) / levels) + 1
-
-    params = [sql(@cut_off), user.id, @cut_off, @cut_off]
-    @tags_for_cloud_90days = Tag.find_by_sql(params).sort_by { |tag| tag.name.downcase }
-
-    max_90days, @tags_min_90days = 0, 0
-    @tags_for_cloud_90days.each { |t|
-      max_90days = [t.count.to_i, max_90days].max
-      @tags_min_90days = [t.count.to_i, @tags_min_90days].min
-    }
-
-    @tags_divisor_90days = ((max_90days - @tags_min_90days) / levels) + 1
   end
 
   private
